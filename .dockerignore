@@ -1,0 +1,13 @@
+target/
+data/
+uploads/
+*.log
+*.class
+.idea/
+*.iml
+.settings/
+.project
+.classpath
+.git/
+node_modules/
+backend/target/

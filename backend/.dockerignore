@@ -1,0 +1,13 @@
+target/
+!.mvn/wrapper/maven-wrapper.jar
+data/
+uploads/
+*.log
+*.class
+.idea/
+*.iml
+.settings/
+.project
+.classpath
+.git/
+node_modules/

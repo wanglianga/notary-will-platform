@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+target/
+out/
+build/
+
+# Logs and QA artifacts
+*.log
+logs/
+coverage/
+playwright-report/
+test-results/
+*.trace.zip
+screenshots/
+
+# Local runtime data
+backend/data/
+backend/uploads/
+uploads/
+*.db
+*.mv.db
+*.lock.db
+
+# Environment and editor state
+.env
+.env.*
+!.env.example
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Package manager caches
+.npm/
+.pnpm-store/
+.yarn/
