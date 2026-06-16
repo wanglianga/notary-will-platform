@@ -85,4 +85,8 @@ public class AppointmentService {
     public List<AppointmentSlot> getSlotsByNotaryAndDate(Long notaryId, LocalDate date) {
         return appointmentSlotRepository.findByNotaryIdAndDate(notaryId, date);
     }
+
+    public List<AppointmentSlot> getSlotsByNotary(Long notaryId) {
+        return appointmentSlotRepository.findByNotaryId(notaryId);
+    }
 }

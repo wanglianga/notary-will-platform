@@ -27,4 +27,19 @@ public class WitnessVideo extends BaseEntity {
 
     @Column(name = "recorded_by")
     private String recordedBy;
+
+    @Column(name = "recorded_by_id")
+    private Long recordedById;
+
+    @Column(name = "video_type")
+    private String videoType;
+
+    @Column(name = "file_name")
+    private String fileName;
+
+    @Column(name = "file_path")
+    private String filePath;
+
+    @Column(name = "file_size")
+    private Long fileSize;
 }

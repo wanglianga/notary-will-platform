@@ -1,9 +1,9 @@
 package com.notary.will.service;
 
-import com.notary.will.entity.WillCase;
+import com.notary.will.entity.*;
 import com.notary.will.enums.CaseStatus;
 import com.notary.will.exception.BusinessException;
-import com.notary.will.repository.WillCaseRepository;
+import com.notary.will.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +19,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WillCaseService {
 
     private final WillCaseRepository willCaseRepository;
+    private final IdentityInfoRepository identityInfoRepository;
+    private final PropertyInventoryRepository propertyInventoryRepository;
+    private final KinshipRelationRepository kinshipRelationRepository;
+    private final HealthDeclarationRepository healthDeclarationRepository;
+    private final BeneficiaryRepository beneficiaryRepository;
+    private final WitnessRepository witnessRepository;
 
     private static final Map<CaseStatus, List<CaseStatus>> STATUS_TRANSITIONS = new ConcurrentHashMap<>();
 
@@ -98,6 +104,55 @@ public class WillCaseService {
     @Transactional
     public void deleteCase(Long id) {
         willCaseRepository.deleteById(id);
+    }
+
+    @Transactional
+    public WillCase updateStatus(Long id, CaseStatus newStatus, Long operatorId) {
+        WillCase willCase = getCaseById(id);
+        CaseStatus currentStatus = willCase.getStatus();
+
+        if (currentStatus == newStatus) {
+            return willCase;
+        }
+
+        willCase.setStatus(newStatus);
+        if (newStatus == CaseStatus.UNDER_REVIEW || newStatus == CaseStatus.REVIEW_PASSED || newStatus == CaseStatus.REVIEW_FAILED) {
+            willCase.setReviewerId(operatorId);
+        }
+        if (newStatus == CaseStatus.INTERVIEWING || newStatus == CaseStatus.WITNESS_SIGNING) {
+            willCase.setNotaryId(operatorId);
+        }
+        return willCaseRepository.save(willCase);
+    }
+
+    public IdentityInfo getIdentityInfo(Long caseId) {
+        getCaseById(caseId);
+        return identityInfoRepository.findByCaseId(caseId).orElse(null);
+    }
+
+    public List<PropertyInventory> getPropertyInventory(Long caseId) {
+        getCaseById(caseId);
+        return propertyInventoryRepository.findByCaseId(caseId);
+    }
+
+    public List<KinshipRelation> getKinshipRelations(Long caseId) {
+        getCaseById(caseId);
+        return kinshipRelationRepository.findByCaseId(caseId);
+    }
+
+    public HealthDeclaration getHealthDeclaration(Long caseId) {
+        getCaseById(caseId);
+        return healthDeclarationRepository.findByCaseId(caseId).orElse(null);
+    }
+
+    public List<Beneficiary> getBeneficiaries(Long caseId) {
+        getCaseById(caseId);
+        return beneficiaryRepository.findByCaseId(caseId);
+    }
+
+    public List<Witness> getWitnesses(Long caseId) {
+        getCaseById(caseId);
+        return witnessRepository.findByCaseId(caseId);
     }
 
     private String generateCaseNumber() {

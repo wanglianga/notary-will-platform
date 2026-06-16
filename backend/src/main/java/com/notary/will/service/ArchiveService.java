@@ -26,10 +26,29 @@ public class ArchiveService {
     }
 
     @Transactional
+    public ArchiveRecord create(ArchiveRecord record) {
+        return archiveRecordRepository.save(record);
+    }
+
+    @Transactional
+    public ArchiveRecord update(Long id, ArchiveRecord update) {
+        ArchiveRecord record = archiveRecordRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("归档记录不存在"));
+        if (update.getArchivistId() != null) record.setArchivistId(update.getArchivistId());
+        if (update.getLocation() != null) record.setLocation(update.getLocation());
+        if (update.getBoxNumber() != null) record.setBoxNumber(update.getBoxNumber());
+        if (update.getSealed() != null) record.setSealed(update.getSealed());
+        if (update.getStatus() != null) record.setStatus(update.getStatus());
+        if (update.getUnsealedById() != null) record.setUnsealedById(update.getUnsealedById());
+        if (update.getUnsealReason() != null) record.setUnsealReason(update.getUnsealReason());
+        return archiveRecordRepository.save(record);
+    }
+
+    @Transactional
     public ArchiveRecord seal(Long caseId, Long sealedBy, String physicalLocation, String electronicPath) {
         willCaseService.getCaseById(caseId);
 
-        ArchiveRecord record = archiveRecordRepository.findByCaseId(caseId)
+        ArchiveRecord record = archiveRecordRepository.findTopByCaseIdOrderByCreatedAtDesc(caseId)
                 .orElseGet(() -> {
                     ArchiveRecord r = new ArchiveRecord();
                     r.setCaseId(caseId);
@@ -47,7 +66,7 @@ public class ArchiveService {
     @Transactional
     public ArchiveRecord requestUnseal(Long caseId) {
         willCaseService.getCaseById(caseId);
-        ArchiveRecord record = archiveRecordRepository.findByCaseId(caseId)
+        ArchiveRecord record = archiveRecordRepository.findTopByCaseIdOrderByCreatedAtDesc(caseId)
                 .orElseThrow(() -> new BusinessException("归档记录不存在"));
 
         if (record.getStatus() != ArchiveStatus.SEALED) {
@@ -61,7 +80,7 @@ public class ArchiveService {
     @Transactional
     public ArchiveRecord unseal(Long caseId) {
         willCaseService.getCaseById(caseId);
-        ArchiveRecord record = archiveRecordRepository.findByCaseId(caseId)
+        ArchiveRecord record = archiveRecordRepository.findTopByCaseIdOrderByCreatedAtDesc(caseId)
                 .orElseThrow(() -> new BusinessException("归档记录不存在"));
 
         if (record.getStatus() != ArchiveStatus.UNSEAL_REQUESTED) {
@@ -74,7 +93,7 @@ public class ArchiveService {
 
     public ArchiveRecord getByCaseId(Long caseId) {
         willCaseService.getCaseById(caseId);
-        return archiveRecordRepository.findByCaseId(caseId)
+        return archiveRecordRepository.findTopByCaseIdOrderByCreatedAtDesc(caseId)
                 .orElseThrow(() -> new BusinessException("归档记录不存在"));
     }
 }

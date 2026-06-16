@@ -33,4 +33,7 @@ public class SupplementItem extends BaseEntity {
 
     @Column(name = "submitted_at")
     private LocalDateTime submittedAt;
+
+    @Column(name = "approved_at")
+    private LocalDateTime approvedAt;
 }

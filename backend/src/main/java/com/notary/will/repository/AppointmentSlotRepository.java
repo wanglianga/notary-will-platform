@@ -12,4 +12,5 @@ public interface AppointmentSlotRepository extends JpaRepository<AppointmentSlot
     List<AppointmentSlot> findByStatus(SlotStatus status);
     List<AppointmentSlot> findByNotaryIdAndDateAndStatus(Long notaryId, LocalDate date, SlotStatus status);
     List<AppointmentSlot> findByCaseId(Long caseId);
+    List<AppointmentSlot> findByNotaryId(Long notaryId);
 }
