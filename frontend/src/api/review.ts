@@ -19,3 +19,23 @@ export function submitReviewDecision(caseId: string, data: Record<string, any>) 
 export function generateSupplementList(caseId: string, data: Record<string, any>) {
   return request.post(`/review/case/${caseId}/supplement`, data)
 }
+
+export function getHighRiskInterviewSummary(caseId: string) {
+  return request.get(`/cases/${caseId}/high-risk-interviews/reviewer-view`)
+}
+
+export function requestSupplementWithValidity(caseId: string, data: Record<string, any>) {
+  return request.post(`/cases/${caseId}/materials/supplement-request-with-validity`, data)
+}
+
+export function getSupplementVersions(caseId: string, supplementItemId: string) {
+  return request.get(`/cases/${caseId}/materials/supplements/${supplementItemId}/versions`)
+}
+
+export function submitSupplementVersion(caseId: string, supplementItemId: string, data: Record<string, any>) {
+  return request.post(`/cases/${caseId}/materials/supplements/${supplementItemId}/versions`, data)
+}
+
+export function reviewSupplementVersion(caseId: string, versionId: string, data: Record<string, any>) {
+  return request.post(`/cases/${caseId}/materials/supplement-versions/${versionId}/review`, data)
+}

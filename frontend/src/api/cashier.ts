@@ -23,3 +23,11 @@ export function getPaymentStatistics(params?: Record<string, any>) {
 export function getPendingPayments(params?: Record<string, any>) {
   return request.get('/cashier/pending', { params })
 }
+
+export function checkReInterviewFee(caseId: string) {
+  return request.get(`/cashier/cases/${caseId}/re-interview-check`)
+}
+
+export function generateReInterviewFee(caseId: string, data: Record<string, any>) {
+  return request.post(`/cashier/cases/${caseId}/re-interview-fee`, data)
+}

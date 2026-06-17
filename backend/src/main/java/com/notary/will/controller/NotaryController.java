@@ -7,6 +7,7 @@ import com.notary.will.entity.WillCase;
 import com.notary.will.entity.WitnessVideo;
 import com.notary.will.enums.CaseStatus;
 import com.notary.will.service.AppointmentService;
+import com.notary.will.service.HighRiskInterviewService;
 import com.notary.will.service.InterviewRecordService;
 import com.notary.will.service.WillCaseService;
 import com.notary.will.service.WitnessVideoService;
@@ -33,6 +34,7 @@ public class NotaryController extends BaseCaseController {
     private final InterviewRecordService interviewRecordService;
     private final WitnessVideoService witnessVideoService;
     private final AppointmentService appointmentService;
+    private final HighRiskInterviewService highRiskInterviewService;
 
     @GetMapping("/appointments")
     @PreAuthorize("hasRole('NOTARY')")
@@ -98,6 +100,7 @@ public class NotaryController extends BaseCaseController {
         result.put("witnesses", willCaseService.getWitnesses(caseId));
         result.put("interviewRecords", interviewRecordService.getByCaseId(caseId));
         result.put("videos", witnessVideoService.getByCaseId(caseId));
+        result.put("highRiskInterviews", highRiskInterviewService.getByCaseId(caseId));
 
         return ApiResponse.ok(result);
     }

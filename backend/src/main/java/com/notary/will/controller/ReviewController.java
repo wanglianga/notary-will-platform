@@ -10,6 +10,7 @@ import com.notary.will.repository.MaterialItemRepository;
 import com.notary.will.repository.MaterialReviewRepository;
 import com.notary.will.service.MaterialItemService;
 import com.notary.will.service.MaterialReviewService;
+import com.notary.will.service.HighRiskInterviewService;
 import com.notary.will.service.WillCaseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -33,6 +34,7 @@ public class ReviewController extends BaseCaseController {
     private final MaterialReviewRepository materialReviewRepository;
     private final MaterialItemService materialItemService;
     private final MaterialItemRepository materialItemRepository;
+    private final HighRiskInterviewService highRiskInterviewService;
 
     @GetMapping("/queue")
     @PreAuthorize("hasRole('REVIEWER')")
@@ -90,6 +92,8 @@ public class ReviewController extends BaseCaseController {
         result.put("beneficiaries", willCaseService.getBeneficiaries(caseId));
         result.put("witnesses", willCaseService.getWitnesses(caseId));
         result.put("materials", materialItemRepository.findByCaseId(caseId));
+        result.put("highRiskInterviewSummary", highRiskInterviewService.getReviewerView(caseId));
+        result.put("supplements", materialItemService.getSupplementsByCaseId(caseId));
 
         return ApiResponse.ok(result);
     }
@@ -143,6 +147,10 @@ public class ReviewController extends BaseCaseController {
         review.setReviewerId(getCurrentUserId(auth));
 
         willCaseService.updateStatus(caseId, CaseStatus.SUPPLEMENT_REQUIRED, getCurrentUserId(auth));
+
+        if (supplement.get("validityPeriodDays") != null || supplement.get("reservationRetentionDays") != null) {
+            materialItemService.requestSupplementWithValidity(caseId, supplement);
+        }
 
         return ApiResponse.ok(materialReviewService.create(review));
     }

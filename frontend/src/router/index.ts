@@ -49,6 +49,7 @@ const router = createRouter({
         { path: '', name: 'NotaryDashboard', component: () => import('@/views/notary/Dashboard.vue') },
         { path: 'appointments', name: 'AppointmentManagement', component: () => import('@/views/notary/AppointmentManagement.vue') },
         { path: 'case/:id', name: 'CaseProcessing', component: () => import('@/views/notary/CaseProcessing.vue') },
+        { path: 'case/:id/high-risk-interview', name: 'HighRiskInterview', component: () => import('@/views/notary/HighRiskInterview.vue') },
       ],
     },
     {

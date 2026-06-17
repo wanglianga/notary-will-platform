@@ -90,18 +90,68 @@
     </el-card>
 
     <el-card style="margin-bottom: 20px">
+      <template #header><span>高风险谈话摘要</span></template>
+      <el-alert title="材料审核员只能看到需要补充的证明，不能替代公证员做意愿判断" type="warning" :closable="false" style="margin-bottom: 16px" />
+      <template v-if="caseData.highRiskInterviewSummary">
+        <el-descriptions :column="1" border>
+          <el-descriptions-item label="触发原因">{{ getInterviewTriggerLabel(caseData.highRiskInterviewSummary.triggerReason) }}</el-descriptions-item>
+          <el-descriptions-item label="是否继续办理">{{ getContinueDecisionLabel(caseData.highRiskInterviewSummary.continueDecision) }}</el-descriptions-item>
+          <el-descriptions-item label="录像编号">{{ caseData.highRiskInterviewSummary.videoRecordingNumber }}</el-descriptions-item>
+        </el-descriptions>
+      </template>
+      <template v-else>
+        <span>该案件无高风险谈话记录</span>
+      </template>
+    </el-card>
+
+    <el-card style="margin-bottom: 20px">
       <template #header><span>生成补件清单</span></template>
       <el-form :model="supplementForm" label-width="100px" style="max-width: 500px">
+        <el-form-item label="补件名称">
+          <el-select v-model="supplementForm.materialType" placeholder="请选择补件类型" style="width: 100%">
+            <el-option v-for="opt in supplementMaterialTypeOptions" :key="opt.value" :label="opt.label" :value="opt.value" />
+          </el-select>
+        </el-form-item>
         <el-form-item label="补件说明">
           <el-input v-model="supplementForm.description" type="textarea" :rows="3" placeholder="请输入需要补充的材料说明" />
         </el-form-item>
         <el-form-item label="截止日期">
           <el-date-picker v-model="supplementForm.deadline" type="date" placeholder="选择截止日期" style="width: 100%" value-format="YYYY-MM-DD" />
         </el-form-item>
+        <el-form-item label="有效期限（天）">
+          <el-input-number v-model="supplementForm.validityPeriodDays" :min="1" style="width: 100%" />
+        </el-form-item>
+        <el-form-item label="可替代材料">
+          <el-input v-model="supplementForm.alternativeMaterials" type="textarea" :rows="2" placeholder="请输入可替代的材料" />
+        </el-form-item>
+        <el-form-item label="预约保留时间（天）">
+          <el-input-number v-model="supplementForm.reservationRetentionDays" :min="1" style="width: 100%" />
+        </el-form-item>
+        <el-form-item label="是否需要重新谈话">
+          <el-switch v-model="supplementForm.requiresReInterview" />
+        </el-form-item>
         <el-form-item>
           <el-button type="warning" @click="handleGenerateSupplement">生成补件清单</el-button>
         </el-form-item>
       </el-form>
+    </el-card>
+
+    <el-card style="margin-bottom: 20px">
+      <template #header><span>补件版本对比</span></template>
+      <el-table :data="supplementVersions" stripe size="small">
+        <el-table-column prop="versionNumber" label="版本号" width="80" />
+        <el-table-column label="补件类型" width="120">
+          <template #default="{ row }">{{ getSupplementMaterialTypeLabel(row.materialType) }}</template>
+        </el-table-column>
+        <el-table-column prop="description" label="说明" min-width="160" />
+        <el-table-column prop="changeSummary" label="变更摘要" min-width="160" />
+        <el-table-column prop="submittedBy" label="提交人" width="100" />
+        <el-table-column label="审核结果" width="100">
+          <template #default="{ row }">
+            <el-tag :type="supplementStatusTagTypes[row.reviewResult]" size="small">{{ supplementStatusLabels[row.reviewResult] || row.reviewResult }}</el-tag>
+          </template>
+        </el-table-column>
+      </el-table>
     </el-card>
 
     <el-card>
@@ -119,8 +169,8 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getReviewDetail, reviewMaterial, submitReviewDecision, generateSupplementList } from '@/api/review'
-import { getStatusTagType, getStatusLabel } from '@/utils'
+import { getReviewDetail, reviewMaterial, submitReviewDecision, requestSupplementWithValidity, getSupplementVersions } from '@/api/review'
+import { getStatusTagType, getStatusLabel, getInterviewTriggerLabel, getContinueDecisionLabel, supplementMaterialTypeOptions, supplementStatusLabels, supplementStatusTagTypes, getSupplementMaterialTypeLabel } from '@/utils'
 
 const route = useRoute()
 const caseId = route.params.id as string
@@ -135,7 +185,14 @@ const kinshipReviews = ref<Record<string, string>>({})
 const supplementForm = reactive({
   description: '',
   deadline: '',
+  materialType: '',
+  validityPeriodDays: 30,
+  alternativeMaterials: '',
+  reservationRetentionDays: 15,
+  requiresReInterview: false,
 })
+
+const supplementVersions = ref<any[]>([])
 
 async function loadDetail() {
   try {
@@ -163,7 +220,7 @@ async function handleGenerateSupplement() {
     return
   }
   try {
-    await generateSupplementList(caseId, supplementForm)
+    await requestSupplementWithValidity(caseId, { ...supplementForm })
     ElMessage.success('补件清单已生成')
   } catch {
     ElMessage.error('生成失败')
@@ -182,7 +239,15 @@ async function handleDecision(decision: string) {
   }
 }
 
+async function loadSupplementVersions() {
+  try {
+    const res: any = await getSupplementVersions(caseId, 'current')
+    supplementVersions.value = res.data?.list || res.list || res.data || []
+  } catch { /* empty */ }
+}
+
 onMounted(() => {
   loadDetail()
+  loadSupplementVersions()
 })
 </script>

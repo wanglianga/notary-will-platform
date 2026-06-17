@@ -143,6 +143,7 @@ const breadcrumbs = computed(() => {
     CaseReview: '案件审核',
     AppointmentManagement: '预约管理',
     CaseProcessing: '案件办理',
+    HighRiskInterview: '高风险谈话',
     CaseArchive: '档案管理',
     FeeManagement: '费用管理',
   }

@@ -17,6 +17,8 @@ export function getStatusTagType(status: string): string {
     CLOSED: 'info',
     PAID: 'success',
     UNPAID: 'danger',
+    REFUNDED: 'info',
+    SUPPLEMENT_REQUIRED: 'warning',
   }
   return map[status] || 'info'
 }
@@ -35,6 +37,8 @@ export function getStatusLabel(status: string): string {
     CLOSED: '已结案',
     PAID: '已支付',
     UNPAID: '未支付',
+    REFUNDED: '已退款',
+    SUPPLEMENT_REQUIRED: '需补件',
   }
   return map[status] || status
 }
@@ -81,6 +85,7 @@ export const feeTypeOptions = [
   { label: '公证费', value: 'NOTARY_FEE' },
   { label: '登记费', value: 'REGISTRATION_FEE' },
   { label: '副本费', value: 'COPY_FEE' },
+  { label: '重新谈话费', value: 'RE_INTERVIEW_FEE' },
   { label: '其他', value: 'OTHER' },
 ]
 
@@ -90,4 +95,49 @@ export function getFeeTypeLabel(feeType: string): string {
 
 export function formatCurrency(amount: number): string {
   return '¥' + amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
+
+export const interviewTriggerOptions = [
+  { label: '申请人年龄较大', value: 'ELDERLY' },
+  { label: '表达不清', value: 'UNCLEAR_EXPRESSION' },
+  { label: '亲属陪同过度', value: 'EXCESSIVE_COMPANION' },
+  { label: '疑似受胁迫', value: 'SUSPECTED_COERCION' },
+]
+
+export function getInterviewTriggerLabel(trigger: string): string {
+  return interviewTriggerOptions.find(o => o.value === trigger)?.label || trigger
+}
+
+export const continueDecisionOptions = [
+  { label: '继续办理', value: 'CONTINUE' },
+  { label: '暂停办理', value: 'SUSPEND' },
+  { label: '终止办理', value: 'TERMINATE' },
+]
+
+export function getContinueDecisionLabel(decision: string): string {
+  return continueDecisionOptions.find(o => o.value === decision)?.label || decision
+}
+
+export const supplementMaterialTypeOptions = [
+  { label: '房产证', value: 'PROPERTY_CERTIFICATE' },
+  { label: '银行存单', value: 'BANK_CERTIFICATE' },
+  { label: '亲属关系证明', value: 'KINSHIP_CERTIFICATE' },
+  { label: '医学证明', value: 'MEDICAL_CERTIFICATE' },
+  { label: '其他', value: 'OTHER' },
+]
+
+export function getSupplementMaterialTypeLabel(type: string): string {
+  return supplementMaterialTypeOptions.find(o => o.value === type)?.label || type
+}
+
+export const supplementStatusLabels: Record<string, string> = {
+  PENDING: '待补件',
+  SUBMITTED: '已提交',
+  APPROVED: '已审核',
+}
+
+export const supplementStatusTagTypes: Record<string, string> = {
+  PENDING: 'danger',
+  SUBMITTED: 'warning',
+  APPROVED: 'success',
 }

@@ -35,3 +35,19 @@ export function signOffCase(caseId: string, data: Record<string, any>) {
 export function manageSlots(data: Record<string, any>) {
   return request.post('/notary/slots', data)
 }
+
+export function getHighRiskInterviews(caseId: string) {
+  return request.get(`/cases/${caseId}/high-risk-interviews`)
+}
+
+export function createHighRiskInterview(caseId: string, data: Record<string, any>) {
+  return request.post(`/cases/${caseId}/high-risk-interviews`, data)
+}
+
+export function updateHighRiskInterview(caseId: string, id: string, data: Record<string, any>) {
+  return request.put(`/cases/${caseId}/high-risk-interviews/${id}`, data)
+}
+
+export function completeHighRiskInterview(caseId: string, id: string, data: Record<string, any>) {
+  return request.post(`/cases/${caseId}/high-risk-interviews/${id}/complete`, data)
+}

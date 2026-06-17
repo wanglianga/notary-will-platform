@@ -50,6 +50,7 @@ public class CashierController extends BaseCaseController {
         fee.setAmount(new BigDecimal(feeData.get("amount").toString()));
         fee.setStatus(FeeStatus.UNPAID);
         fee.setPaidBy(getCurrentUserId(auth));
+        fee.setIsReInterviewFee(false);
 
         return ApiResponse.ok(feeService.createFee(caseId, fee));
     }
@@ -114,5 +115,27 @@ public class CashierController extends BaseCaseController {
         result.put("total", feePage.getTotalElements());
 
         return ApiResponse.ok(result);
+    }
+
+    @GetMapping("/cases/{caseId}/re-interview-check")
+    @PreAuthorize("hasRole('CASHIER')")
+    public ApiResponse<Map<String, Object>> checkReInterviewFee(@PathVariable Long caseId, Authentication auth) {
+        getCaseAndCheckAccess(caseId, auth);
+        boolean requiresReInterview = feeService.caseRequiresReInterviewFee(caseId);
+        Map<String, Object> result = new HashMap<>();
+        result.put("caseId", caseId);
+        result.put("requiresReInterviewFee", requiresReInterview);
+        return ApiResponse.ok(result);
+    }
+
+    @PostMapping("/cases/{caseId}/re-interview-fee")
+    @PreAuthorize("hasRole('CASHIER')")
+    public ApiResponse<FeeRecord> generateReInterviewFee(@PathVariable Long caseId,
+                                                          @RequestBody Map<String, Object> data,
+                                                          Authentication auth) {
+        getCaseAndCheckAccess(caseId, auth);
+        BigDecimal amount = new BigDecimal(data.get("amount").toString());
+        String reason = (String) data.get("reason");
+        return ApiResponse.ok(feeService.generateReInterviewFee(caseId, amount, reason));
     }
 }

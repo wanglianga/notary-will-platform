@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Component
@@ -31,7 +32,9 @@ public class DataInitializer implements CommandLineRunner {
     private final BeneficiaryRepository beneficiaryRepository;
     private final WitnessRepository witnessRepository;
     private final SupplementItemRepository supplementItemRepository;
+    private final SupplementVersionRepository supplementVersionRepository;
     private final FeeRecordRepository feeRecordRepository;
+    private final HighRiskInterviewRepository highRiskInterviewRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -96,11 +99,20 @@ public class DataInitializer implements CommandLineRunner {
         case3.setNotaryId(notary1.getId());
         case3.setReviewerId(reviewer1.getId());
         willCaseRepository.save(case3);
+
+        WillCase case4 = new WillCase();
+        case4.setCaseNumber("WC20240604001");
+        case4.setStatus(CaseStatus.SUPPLEMENT_REQUIRED);
+        case4.setApplicantId(applicant2.getId());
+        case4.setNotaryId(notary2.getId());
+        case4.setReviewerId(reviewer1.getId());
+        willCaseRepository.save(case4);
     }
 
     private void createSampleData() {
         WillCase case1 = willCaseRepository.findByCaseNumber("WC20240601001").orElseThrow();
         WillCase case3 = willCaseRepository.findByCaseNumber("WC20240603001").orElseThrow();
+        WillCase case4 = willCaseRepository.findByCaseNumber("WC20240604001").orElseThrow();
 
         IdentityInfo identity1 = new IdentityInfo();
         identity1.setCaseId(case1.getId());
@@ -221,6 +233,7 @@ public class DataInitializer implements CommandLineRunner {
         fee1.setStatus(FeeStatus.PAID);
         fee1.setPaidBy(case1.getApplicantId());
         fee1.setReceiptNumber("RCP20240601001");
+        fee1.setIsReInterviewFee(false);
         feeRecordRepository.save(fee1);
 
         FeeRecord fee2 = new FeeRecord();
@@ -228,6 +241,7 @@ public class DataInitializer implements CommandLineRunner {
         fee2.setFeeType("档案保管费");
         fee2.setAmount(new BigDecimal("100"));
         fee2.setStatus(FeeStatus.UNPAID);
+        fee2.setIsReInterviewFee(false);
         feeRecordRepository.save(fee2);
 
         User archivist1 = userRepository.findByUsername("archivist1").orElseThrow();
@@ -239,5 +253,47 @@ public class DataInitializer implements CommandLineRunner {
         archive1.setElectronicPath("/archive/WC20240603001");
         archive1.setStatus(ArchiveStatus.SEALED);
         archiveRecordRepository.save(archive1);
+
+        SupplementItem supp1 = new SupplementItem();
+        supp1.setCaseId(case4.getId());
+        supp1.setMaterialType("PROPERTY_CERTIFICATE");
+        supp1.setDescription("房产证原件缺失，需补充");
+        supp1.setDeadline(LocalDate.of(2024, 7, 15));
+        supp1.setStatus(SupplementStatus.PENDING);
+        supp1.setValidityPeriodDays(30);
+        supp1.setAlternativeMaterials("不动产登记证明或购房合同可替代");
+        supp1.setReservationRetentionDays(15);
+        supp1.setReservationExpiry(LocalDateTime.now().plusDays(15));
+        supp1.setRequiresReInterview(false);
+        supplementItemRepository.save(supp1);
+
+        SupplementItem supp2 = new SupplementItem();
+        supp2.setCaseId(case4.getId());
+        supp2.setMaterialType("KINSHIP_CERTIFICATE");
+        supp2.setDescription("亲属关系证明缺失，需补充");
+        supp2.setDeadline(LocalDate.of(2024, 7, 10));
+        supp2.setStatus(SupplementStatus.PENDING);
+        supp2.setValidityPeriodDays(30);
+        supp2.setAlternativeMaterials("户口本或派出所证明可替代");
+        supp2.setReservationRetentionDays(10);
+        supp2.setReservationExpiry(LocalDateTime.now().plusDays(10));
+        supp2.setRequiresReInterview(true);
+        supplementItemRepository.save(supp2);
+
+        HighRiskInterview hri1 = new HighRiskInterview();
+        hri1.setCaseId(case1.getId());
+        hri1.setNotaryId(notary1.getId());
+        hri1.setTriggerReason(InterviewTrigger.ELDERLY);
+        hri1.setCompanionName("张四");
+        hri1.setCompanionRelation("儿子");
+        hri1.setCompanionAvoidanceStart(LocalDateTime.of(2024, 6, 5, 10, 0));
+        hri1.setCompanionAvoidanceEnd(LocalDateTime.of(2024, 6, 5, 10, 30));
+        hri1.setQaSummary("单独谈话确认申请人自愿立遗嘱，未受胁迫");
+        hri1.setVideoRecordingNumber("VID20240605-001");
+        hri1.setContinueDecision(ContinueDecision.CONTINUE);
+        hri1.setInterviewStartTime(LocalDateTime.of(2024, 6, 5, 10, 0));
+        hri1.setInterviewEndTime(LocalDateTime.of(2024, 6, 5, 10, 30));
+        hri1.setNotaryOpinion("申请人虽年事已高，但意识清醒，遗嘱意愿真实");
+        highRiskInterviewRepository.save(hri1);
     }
 }

@@ -37,4 +37,10 @@ public class FeeRecord extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private FeeStatus status = FeeStatus.UNPAID;
+
+    @Column(name = "is_re_interview_fee", nullable = false)
+    private Boolean isReInterviewFee = false;
+
+    @Column(name = "re_interview_reason", columnDefinition = "CLOB")
+    private String reInterviewReason;
 }

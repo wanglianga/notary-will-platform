@@ -23,8 +23,34 @@
         </el-table-column>
         <el-table-column prop="receiptNumber" label="收据编号" width="160" />
         <el-table-column prop="paidBy" label="付款人" width="120" />
+        <el-table-column label="重新谈话" width="100">
+          <template #default="{ row }">
+            <el-tag v-if="row.isReInterviewFee" type="danger" size="small">是</el-tag>
+          </template>
+        </el-table-column>
         <el-table-column prop="paidAt" label="付款时间" width="180" />
       </el-table>
+    </el-card>
+
+    <el-card style="margin-bottom: 20px">
+      <template #header><span>重新谈话费用</span></template>
+      <el-alert v-if="reInterviewCheck.requiresReInterviewFee" title="该案件需要重新谈话，请生成相应费用" type="warning" :closable="false" style="margin-bottom: 16px" />
+      <template v-if="reInterviewCheck.requiresReInterviewFee">
+        <el-form :model="reInterviewFeeForm" label-width="100px" style="max-width: 500px">
+          <el-form-item label="金额">
+            <el-input-number v-model="reInterviewFeeForm.amount" :min="0" :precision="2" style="width: 200px" />
+          </el-form-item>
+          <el-form-item label="原因">
+            <el-input v-model="reInterviewFeeForm.reason" type="textarea" :rows="3" placeholder="请输入重新谈话原因" />
+          </el-form-item>
+          <el-form-item>
+            <el-button type="warning" :loading="generatingReInterviewFee" @click="handleGenerateReInterviewFee">生成重新谈话费用</el-button>
+          </el-form-item>
+        </el-form>
+      </template>
+      <template v-else>
+        <span>该案件无需重新谈话费用</span>
+      </template>
     </el-card>
 
     <el-card style="margin-bottom: 20px">
@@ -91,7 +117,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getFeeList, addFee, recordPayment, refundPayment } from '@/api/cashier'
+import { getFeeList, addFee, recordPayment, refundPayment, checkReInterviewFee, generateReInterviewFee } from '@/api/cashier'
 import { getStatusTagType, getStatusLabel, getFeeTypeLabel, formatCurrency, feeTypeOptions } from '@/utils'
 
 const route = useRoute()
@@ -122,6 +148,10 @@ const addFeeRules = {
   feeType: [{ required: true, message: '请选择费用类型', trigger: 'change' }],
   amount: [{ required: true, message: '请输入金额', trigger: 'blur' }],
 }
+
+const reInterviewCheck = ref({ requiresReInterviewFee: false })
+const reInterviewFeeForm = reactive({ amount: 200, reason: '' })
+const generatingReInterviewFee = ref(false)
 
 async function loadFees() {
   try {
@@ -192,7 +222,28 @@ async function handleRefund() {
   }
 }
 
+async function checkReInterview() {
+  try {
+    const res: any = await checkReInterviewFee(caseId)
+    reInterviewCheck.value = res.data || res
+  } catch { /* empty */ }
+}
+
+async function handleGenerateReInterviewFee() {
+  generatingReInterviewFee.value = true
+  try {
+    await generateReInterviewFee(caseId, { ...reInterviewFeeForm })
+    ElMessage.success('重新谈话费用已生成')
+    loadFees()
+  } catch {
+    ElMessage.error('生成失败')
+  } finally {
+    generatingReInterviewFee.value = false
+  }
+}
+
 onMounted(() => {
   loadFees()
+  checkReInterview()
 })
 </script>

@@ -19,6 +19,7 @@ public class FeeService {
 
     private final FeeRecordRepository feeRecordRepository;
     private final WillCaseService willCaseService;
+    private final MaterialItemService materialItemService;
 
     @Transactional
     public FeeRecord createFee(Long caseId, FeeRecord fee) {
@@ -71,6 +72,31 @@ public class FeeService {
 
     public List<FeeRecord> getUnpaidFees(Long caseId) {
         return feeRecordRepository.findByCaseIdAndStatus(caseId, FeeStatus.UNPAID);
+    }
+
+    @Transactional
+    public FeeRecord generateReInterviewFee(Long caseId, BigDecimal amount, String reason) {
+        willCaseService.getCaseById(caseId);
+
+        List<FeeRecord> existingReInterviewFees = feeRecordRepository.findByCaseId(caseId).stream()
+                .filter(f -> Boolean.TRUE.equals(f.getIsReInterviewFee()) && f.getStatus() == FeeStatus.UNPAID)
+                .toList();
+        if (!existingReInterviewFees.isEmpty()) {
+            throw new BusinessException("该案件已存在未支付的重新谈话费用");
+        }
+
+        FeeRecord fee = new FeeRecord();
+        fee.setCaseId(caseId);
+        fee.setFeeType("RE_INTERVIEW_FEE");
+        fee.setAmount(amount);
+        fee.setStatus(FeeStatus.UNPAID);
+        fee.setIsReInterviewFee(true);
+        fee.setReInterviewReason(reason);
+        return feeRecordRepository.save(fee);
+    }
+
+    public boolean caseRequiresReInterviewFee(Long caseId) {
+        return materialItemService.caseRequiresReInterview(caseId);
     }
 
     private String generateReceiptNumber() {

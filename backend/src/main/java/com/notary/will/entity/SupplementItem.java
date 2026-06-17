@@ -36,4 +36,19 @@ public class SupplementItem extends BaseEntity {
 
     @Column(name = "approved_at")
     private LocalDateTime approvedAt;
+
+    @Column(name = "validity_period_days")
+    private Integer validityPeriodDays;
+
+    @Column(name = "alternative_materials", columnDefinition = "CLOB")
+    private String alternativeMaterials;
+
+    @Column(name = "reservation_retention_days")
+    private Integer reservationRetentionDays;
+
+    @Column(name = "reservation_expiry")
+    private LocalDateTime reservationExpiry;
+
+    @Column(name = "requires_re_interview", nullable = false)
+    private Boolean requiresReInterview = false;
 }

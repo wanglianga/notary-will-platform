@@ -18,7 +18,8 @@
         <el-descriptions-item label="证件号码">{{ caseData.identity?.idNumber }}</el-descriptions-item>
         <el-descriptions-item label="联系电话">{{ caseData.identity?.phone }}</el-descriptions-item>
       </el-descriptions>
-      <div style="margin-top: 16px; text-align: right">
+      <div style="margin-top: 16px; text-align: right; display: flex; gap: 8px; justify-content: flex-end">
+        <el-button type="warning" @click="$router.push(`/notary/case/${caseId}/high-risk-interview`)">发起高风险谈话</el-button>
         <el-button type="primary" @click="activeStep = 1">下一步：面谈</el-button>
       </div>
     </el-card>
