@@ -84,7 +84,7 @@ const roleLabelMap: Record<string, string> = {
   APPLICANT: '申请人',
   REVIEWER: '审核员',
   NOTARY: '公证员',
-  ARCHIVE: '档案员',
+  ARCHIVIST: '档案员',
   CASHIER: '收费员',
 }
 
@@ -92,7 +92,7 @@ const roleTagTypeMap: Record<string, string> = {
   APPLICANT: '',
   REVIEWER: 'warning',
   NOTARY: 'success',
-  ARCHIVE: 'info',
+  ARCHIVIST: 'info',
   CASHIER: 'danger',
 }
 
@@ -113,8 +113,8 @@ const menuConfig: Record<string, Array<{ path: string; title: string; icon: any 
     { path: '/notary', title: '工作台', icon: HomeFilled },
     { path: '/notary/appointments', title: '预约管理', icon: Calendar },
   ],
-  ARCHIVE: [
-    { path: '/archive', title: '工作台', icon: HomeFilled },
+  ARCHIVIST: [
+    { path: '/archivist', title: '工作台', icon: HomeFilled },
   ],
   CASHIER: [
     { path: '/cashier', title: '工作台', icon: HomeFilled },
@@ -125,7 +125,14 @@ const menuItems = computed(() => menuConfig[authStore.role] || [])
 
 const breadcrumbs = computed(() => {
   const items: Array<{ path: string; title: string }> = []
-  const roleHome = { path: `/${authStore.role}`, title: roleLabel.value + '首页' }
+  const rolePathMap: Record<string, string> = {
+    APPLICANT: '/applicant',
+    REVIEWER: '/reviewer',
+    NOTARY: '/notary',
+    ARCHIVIST: '/archivist',
+    CASHIER: '/cashier',
+  }
+  const roleHome = { path: rolePathMap[authStore.role] || `/${authStore.role}`, title: roleLabel.value + '首页' }
   items.push(roleHome)
 
   const nameMap: Record<string, string> = {

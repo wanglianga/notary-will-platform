@@ -43,6 +43,16 @@ public abstract class BaseCaseController {
             if (!willCase.getApplicantId().equals(currentUserId)) {
                 throw new AccessDeniedException("无权访问他人案件数据");
             }
+        } else if (role == UserRole.REVIEWER) {
+            if (willCase.getReviewerId() != null && !willCase.getReviewerId().equals(currentUserId)) {
+                throw new AccessDeniedException("无权访问未分配给您的案件");
+            }
+        } else if (role == UserRole.NOTARY) {
+            if (willCase.getNotaryId() != null && !willCase.getNotaryId().equals(currentUserId)) {
+                throw new AccessDeniedException("无权访问未分配给您的案件");
+            }
+        } else if (role == UserRole.CASHIER || role == UserRole.ARCHIVIST) {
+            // Cashier and Archivist can access all cases in their workflow
         }
 
         return willCase;
@@ -59,6 +69,16 @@ public abstract class BaseCaseController {
             if (!willCase.getApplicantId().equals(currentUserId)) {
                 throw new AccessDeniedException("无权访问或修改他人案件数据");
             }
+        } else if (role == UserRole.REVIEWER) {
+            if (willCase.getReviewerId() != null && !willCase.getReviewerId().equals(currentUserId)) {
+                throw new AccessDeniedException("无权访问或修改未分配给您的案件");
+            }
+        } else if (role == UserRole.NOTARY) {
+            if (willCase.getNotaryId() != null && !willCase.getNotaryId().equals(currentUserId)) {
+                throw new AccessDeniedException("无权访问或修改未分配给您的案件");
+            }
+        } else if (role == UserRole.CASHIER || role == UserRole.ARCHIVIST) {
+            // Cashier and Archivist can access all cases in their workflow
         }
     }
 

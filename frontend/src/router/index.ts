@@ -53,9 +53,9 @@ const router = createRouter({
       ],
     },
     {
-      path: '/archive',
+      path: '/archivist',
       component: () => import('@/layouts/MainLayout.vue'),
-      meta: { requiresAuth: true, role: 'ARCHIVE' },
+      meta: { requiresAuth: true, role: 'ARCHIVIST' },
       children: [
         { path: '', name: 'ArchiveDashboard', component: () => import('@/views/archive/Dashboard.vue') },
         { path: 'case/:id', name: 'CaseArchive', component: () => import('@/views/archive/CaseArchive.vue') },
@@ -87,7 +87,7 @@ router.beforeEach((to) => {
         APPLICANT: '/applicant',
         REVIEWER: '/reviewer',
         NOTARY: '/notary',
-        ARCHIVE: '/archive',
+        ARCHIVIST: '/archivist',
         CASHIER: '/cashier',
       }
       return rolePathMap[userRole] || '/login'

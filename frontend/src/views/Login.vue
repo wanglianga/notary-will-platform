@@ -53,7 +53,7 @@ async function handleLogin() {
       APPLICANT: '/applicant',
       REVIEWER: '/reviewer',
       NOTARY: '/notary',
-      ARCHIVE: '/archive',
+      ARCHIVIST: '/archivist',
       CASHIER: '/cashier',
     }
     ElMessage.success('登录成功')

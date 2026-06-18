@@ -69,7 +69,7 @@ async function loadData() {
   try {
     const [apptRes, caseRes]: [any, any] = await Promise.all([
       getNotaryAppointments({ date: new Date().toISOString().split('T')[0] }),
-      getNotaryCaseList({ status: 'IN_PROGRESS' }),
+      getNotaryCaseList({}),
     ])
     todayAppointments.value = apptRes.data?.list || apptRes.list || apptRes.data || []
     pendingCases.value = caseRes.data?.list || caseRes.list || caseRes.data || []
