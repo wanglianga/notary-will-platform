@@ -32,6 +32,10 @@ export function getSupplementVersions(caseId: string, supplementItemId: string) 
   return request.get(`/cases/${caseId}/materials/supplements/${supplementItemId}/versions`)
 }
 
+export function getSupplementVersionsByCase(caseId: string) {
+  return request.get(`/cases/${caseId}/materials/supplement-versions`)
+}
+
 export function submitSupplementVersion(caseId: string, supplementItemId: string, data: Record<string, any>) {
   return request.post(`/cases/${caseId}/materials/supplements/${supplementItemId}/versions`, data)
 }

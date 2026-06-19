@@ -169,7 +169,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getReviewDetail, reviewMaterial, submitReviewDecision, requestSupplementWithValidity, getSupplementVersions } from '@/api/review'
+import { getReviewDetail, reviewMaterial, submitReviewDecision, requestSupplementWithValidity, getSupplementVersionsByCase } from '@/api/review'
 import { getStatusTagType, getStatusLabel, getInterviewTriggerLabel, getContinueDecisionLabel, supplementMaterialTypeOptions, supplementStatusLabels, supplementStatusTagTypes, getSupplementMaterialTypeLabel } from '@/utils'
 
 const route = useRoute()
@@ -241,7 +241,7 @@ async function handleDecision(decision: string) {
 
 async function loadSupplementVersions() {
   try {
-    const res: any = await getSupplementVersions(caseId, 'current')
+    const res: any = await getSupplementVersionsByCase(caseId)
     supplementVersions.value = res.data?.list || res.list || res.data || []
   } catch { /* empty */ }
 }

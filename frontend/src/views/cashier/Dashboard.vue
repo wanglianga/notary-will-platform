@@ -3,19 +3,19 @@
     <h2 class="page-title">收费管理工作台</h2>
     <div class="card-row">
       <el-card class="stat-card" shadow="hover">
-        <div class="stat-value">{{ formatCurrency(stats.totalRevenue) }}</div>
+        <div class="stat-value">{{ formatCurrency(stats.totalPaid || 0) }}</div>
         <div class="stat-label">总收入</div>
       </el-card>
       <el-card class="stat-card" shadow="hover">
-        <div class="stat-value" style="color: #f56c6c">{{ stats.pendingPayments }}</div>
+        <div class="stat-value" style="color: #f56c6c">{{ formatCurrency(stats.totalUnpaid || 0) }}</div>
         <div class="stat-label">待收款</div>
       </el-card>
       <el-card class="stat-card" shadow="hover">
-        <div class="stat-value" style="color: #67c23a">{{ stats.paidCount }}</div>
-        <div class="stat-label">已收款</div>
+        <div class="stat-value" style="color: #67c23a">{{ stats.paidCount || 0 }}</div>
+        <div class="stat-label">已收款笔数</div>
       </el-card>
       <el-card class="stat-card" shadow="hover">
-        <div class="stat-value" style="color: #909399">{{ stats.refundCount }}</div>
+        <div class="stat-value" style="color: #909399">{{ formatCurrency(stats.totalRefunded || 0) }}</div>
         <div class="stat-label">已退款</div>
       </el-card>
     </div>
@@ -52,7 +52,7 @@ import { getPaymentStatistics, getPendingPayments } from '@/api/cashier'
 import { getStatusTagType, getStatusLabel, getFeeTypeLabel, formatCurrency } from '@/utils'
 
 const pendingList = ref<any[]>([])
-const stats = ref({ totalRevenue: 0, pendingPayments: 0, paidCount: 0, refundCount: 0 })
+const stats = ref({ totalPaid: 0, totalUnpaid: 0, totalRefunded: 0, paidCount: 0, unpaidCount: 0 })
 
 async function loadData() {
   try {
@@ -60,7 +60,14 @@ async function loadData() {
       getPaymentStatistics(),
       getPendingPayments(),
     ])
-    stats.value = statRes.data || stats.value
+    const statData = statRes.data || {}
+    stats.value = {
+      totalPaid: statData.totalPaid ?? 0,
+      totalUnpaid: statData.totalUnpaid ?? 0,
+      totalRefunded: statData.totalRefunded ?? 0,
+      paidCount: statData.paidCount ?? 0,
+      unpaidCount: statData.unpaidCount ?? 0,
+    }
     pendingList.value = pendingRes.data?.list || pendingRes.list || pendingRes.data || []
   } catch { /* empty */ }
 }
